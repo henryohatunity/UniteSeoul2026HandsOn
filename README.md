@@ -1,7 +1,7 @@
 **_Note:This repository uses GitLFS, to use this repo you need to pull via Git and make sure GitLFS is installed locally_**
 
-# Boat Attack
-###### Demo Project using the Universal RP from Unity3D
+# Boat Attack (Unity 6000.0.74f1)
+###### Demo Project using the Universal RP from Unity
 
 [![Click for Youtube Video](https://media.githubusercontent.com/media/Verasl/BoatAttack/release/2019.3/Assets/Textures/UI/welcome-title.png)](https://drive.google.com/file/d/1PTNdhnqbhzSWUCfAinIefP5cfr6Dezuw/view)
 
@@ -30,10 +30,7 @@ Feel free to post any issues, but know this is a 'as is' repo, it's meant more f
 via Git:
   1. Make sure you have GitLFS installed, check [here](https://git-lfs.github.com) for details.
   2. Clone the repo as usual via cmd/terminal or in your favourite Git GUI software.
-  3. Checkout the branch that matches the Unity verison you are using, eg `release/2019.3`
-
-Downloadable zips:
-  1. [2019.3 Project (Unity 2019.3f5)](https://drive.google.com/file/d/1vXpbVC36GHnyC-Eitl1WpLay9l_YqJGQ/view?usp=sharing)
+  3. Check out the main branch that matches
 
 #### Load the project:
 Once you have the project files locally you can load the project, ideally in the Unity version that is noted in the `ProjectSettings/ProjectVersion.txt` for the best experience.
@@ -50,21 +47,6 @@ One thing to make sure you do before building is make sure to build the addressa
 Once the addressable assets are built you can continue to build a player as usual.
 
 One thing to mention is not all controls and platforms have been tested, especially for the menu work. if you want to just see the project running on a device you can add the `scenes/demo_island.unity` scene to the build list and disable/remove the others.
-
-# Todo
-
-As this project is on going there is a lot more left that needs to be worked on, so I repeat this is not a resource for production ready workflow ideas or systems and lots of it was put together very quickly.
-
-Some of the things left to do:
- * Make water system more modular and improve UX
- * Improve boat AI
- * Add imposter rendering for vegetation
- * Cleanup menu system to switch between Demoing/Playing/Benchmarking
- * Implement Unity Physics
- * Optimize cross platform performance and stability
- * Continue code cleanup
- * Wiki explaining features/systems in more depth
- * Add more sizzle....
 
 ![Sunny Island](https://gdurl.com/STO1)
 
