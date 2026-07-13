@@ -46,3 +46,4 @@ Assets/BuildReports
 SerializedBuildInfo
 SwitchIL2CPP*
 Assets/ActualImages*
+mono_crash*.json
