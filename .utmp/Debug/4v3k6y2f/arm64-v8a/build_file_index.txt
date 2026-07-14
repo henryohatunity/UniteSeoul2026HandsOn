@@ -1,2 +1,0 @@
-/Volumes/Work/Unite Seoul 2026/UniteSeoul2026HandsOn/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/CMakeLists.txt
-/Volumes/Work/Unite Seoul 2026/UniteSeoul2026HandsOn/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/FramePacing/CMakeLists.txt
