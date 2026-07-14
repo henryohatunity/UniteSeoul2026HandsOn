@@ -8,6 +8,7 @@
 /[Xx]codeProfiler/
 /[Ww]orkingFolder/
 /Assets/AssetStoreTools*
+/.utmp/
 
 # Visual Studio 2015 cache directory
 /.vs/
