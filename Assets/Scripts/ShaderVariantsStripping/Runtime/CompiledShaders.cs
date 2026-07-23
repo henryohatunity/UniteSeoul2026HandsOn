@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Security.Policy;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -135,6 +134,7 @@ namespace ShaderVariantStripping
             if (GUILayout.Button("Collect compiled shaders from profiler"))
             {
                 CollectFromProfilerRawData(((CompiledShaders)target).Shaders);
+                ((CompiledShaders)target).UpdateCounts();
                 EditorUtility.SetDirty(target);
             }
 
@@ -193,7 +193,7 @@ namespace ShaderVariantStripping
 
         public static void CollectFromProfilerRawData(List<CompiledShaderData> shaders)
         {
-            for (int f = ProfilerDriver.firstFrameIndex; f < ProfilerDriver.lastFrameIndex; f++)
+            for (int f = ProfilerDriver.firstFrameIndex; f <= ProfilerDriver.lastFrameIndex; f++)
             {
                 using (var hfdv = ProfilerDriver.GetHierarchyFrameDataView(f, 0,
                            HierarchyFrameDataView.ViewModes.HideEditorOnlySamples, 0,
@@ -243,7 +243,7 @@ namespace ShaderVariantStripping
                                 break;
                         }
                     }
-
+                    
                     if (parts.Any(p => p == null))
                     {
                         Debug.LogError("Malformed shader compilation log info: " + id);
