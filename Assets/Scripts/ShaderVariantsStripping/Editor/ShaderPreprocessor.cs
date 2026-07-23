@@ -47,7 +47,7 @@ namespace ShaderVariantStripping.Editor
                 return;
             }
             
-            var compiledShaders = AssetDatabase.LoadAssetAtPath<CompiledShaders>("Assets/Scripts/ShaderVariantsStripping/Editor/CompiledShaders_AOS_Profiler.asset");
+            var compiledShaders = AssetDatabase.LoadAssetAtPath<CompiledShaders>("Assets/Scripts/ShaderVariantsStripping/Editor/CompiledShaders_iOS_Profiler.asset");
             if (compiledShaders == null)
             {
                 Debug.LogError("Can't find the CompiledShaders asset");
