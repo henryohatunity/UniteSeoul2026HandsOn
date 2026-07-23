@@ -51,3 +51,7 @@ SerializedBuildInfo
 SwitchIL2CPP*
 Assets/ActualImages*
 mono_crash*.json
+
+CompiledShaders*.asset
+CompiledShaders*.asset.meta
+

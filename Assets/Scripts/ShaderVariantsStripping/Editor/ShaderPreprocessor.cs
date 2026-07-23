@@ -21,31 +21,48 @@ namespace ShaderVariantStripping.Editor
             "Hidden/Universal Render Pipeline/UberPost",
             // add additional shader names to be stripped
         };
+        
+        private static readonly string[] s_StrippingWhitelist =
+        {
+            "Hidden/Universal Render Pipeline/CameraMotionBlur",
+            "Hidden/Universal/CoreBlit",
+            // add additional shader names to be whitelisted
+        };
 
-        public int callbackOrder { get; }
+        public int callbackOrder => 100;  // after the built-in urp preprocessor
 
         public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data)
         {
-            PrintProcessShaderInfo("", shader, snippet, data);
-            return;
+            // PrintProcessShaderInfo("", shader, snippet, data);
+            // return;
             // if (!s_StrippingTarget.Contains(shader.name))
             // {
             //     // Skip variant stripping if the shader is not included in the target list
             //     return;
             // }
 
-            var compiledShaders = AssetDatabase.LoadAssetAtPath<CompiledShaders>("Assets/Scripts/Editor/CompiledShaders2.asset");
-
-            if (compiledShaders == null)
+            if (s_StrippingWhitelist.Contains(shader.name))
             {
+                Debug.Log($"Skip stripping of the whitelisted shader: {shader.name}");
                 return;
             }
+            
+            var compiledShaders = AssetDatabase.LoadAssetAtPath<CompiledShaders>("Assets/Scripts/ShaderVariantsStripping/Editor/CompiledShaders2.asset");
+            if (compiledShaders == null)
+            {
+                Debug.LogError("Can't find the CompiledShaders asset");
+                return;
+            }
+
+            if (!compiledShaders.shouldStrip)
+                return;
 
             var compiledShader = compiledShaders.Shaders.FirstOrDefault(s => s.ShaderName == shader.name);
 
             if (compiledShader == null)
             {
                 // Skip variant stripping if the shader is not collected
+                Debug.LogWarning($"Not collected shader:{shader.name}. skipping...");
                 return;
             }
 
@@ -60,7 +77,7 @@ namespace ShaderVariantStripping.Editor
                 if (!compiledShader.ContainsVariant(shader.name, snippet.passName, compiledShaders.checkStage ? snippet.shaderType.ToString().ToLower() : null, sortedKeywords))
                 {
                     // Strip this, it is not in collected in CompiledShaders list
-                    // PrintProcessShaderInfo("(Stripped)", shader, snippet, new List<ShaderCompilerData>{data[i]});
+                    PrintProcessShaderInfo("(Stripped)", shader, snippet, new List<ShaderCompilerData>{data[i]});
                     data.RemoveAt(i);
                 }
                 else
@@ -313,19 +330,12 @@ namespace ShaderVariantStripping.Editor
             StringBuilder sb = new StringBuilder();
             sb.Append($"============== OnProcessShader {logType} =====================\n");
             sb.Append(
-                $"Name: {shader.name}, ShaderType(Stage): {snippet.shaderType.ToString()}, PassType(LightMode): {snippet.passType}, PassName:{snippet.passName}, SubShaderIndex:{snippet.pass.SubshaderIndex.ToString()}, PassIndex: {snippet.pass.PassIndex.ToString()}\n");
+                $"Name: {shader.name}, ShaderType(Stage): {snippet.shaderType.ToString().ToLower()}, PassType(LightMode): {snippet.passType}, PassName:{snippet.passName}, SubShaderIndex:{snippet.pass.SubshaderIndex.ToString()}, PassIndex: {snippet.pass.PassIndex.ToString()}\n");
 
             foreach (ShaderCompilerData scd in data)
             {
-                sb.Append("Keywords: ");
                 ShaderKeyword[] shaderKeywords = scd.shaderKeywordSet.GetShaderKeywords();
-                foreach (ShaderKeyword keyword in shaderKeywords)
-                {
-                    sb.Append(keyword.name);
-                    sb.Append(" ");
-                }
-
-                sb.Append("\n");
+                sb.Append($"Keywords: {string.Join(" ", shaderKeywords)}\n");
             }
             sb.Append("====================================================\n");
             Debug.Log(sb.ToString());

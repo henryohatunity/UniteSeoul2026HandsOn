@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Security.Policy;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -17,7 +18,19 @@ namespace ShaderVariantStripping
     public class CompiledShaders : ScriptableObject
     {
         public List<CompiledShaderData> Shaders = new();
+        public bool shouldStrip = true;
         public bool checkStage = false;
+        public int totalShaders, totalVariants;
+
+        public void UpdateCounts()
+        {
+            totalShaders = Shaders.Count;
+            totalVariants = 0;
+            foreach (CompiledShaderData data in Shaders)
+            {
+                totalVariants += data.Variants.Count;
+            }
+        }
     }
 
     [Serializable]
@@ -31,6 +44,12 @@ namespace ShaderVariantStripping
         {
             if (ShaderName != shaderName)
                 return false;
+            
+            // debug
+            if(shaderName.Equals("Boat Attack/UI/Halftone Fade"))
+            {
+                Debug.Log("Boat Attack/UI/Halftone Fade");
+            }
             
             if(stage == null)
                 return Variants.Any(v => v.EqualsTo(pass, keywords));
@@ -46,7 +65,7 @@ namespace ShaderVariantStripping
         public string Pass; 
         public string Stage;
         public string[] Keywords;   // sorted
-        private static readonly string[] k_NoPassNames = new[] { "unnamed", "<unnamed>", "<Unnamed Pass "}; // 2019.x uses: <unnamed>, whilst 2020.x uses unnamed
+        private static readonly string[] k_NoPassNames = new[] { "unnamed", "<unnamed>", "<Unnamed Pass 0>", "<Unnamed Pass 1>", "<Unnamed Pass 2>" }; // 2019.x uses: <unnamed>, whilst 2020.x uses unnamed
 
 #if UNITY_EDITOR
         public bool EqualsTo(string pass, string[] keywords)
@@ -73,8 +92,10 @@ namespace ShaderVariantStripping
             var passMatch = Pass.Equals(pass, StringComparison.OrdinalIgnoreCase);
             if (!passMatch)
             {
-                var isUnnamed = k_NoPassNames.Contains(Pass);
-                passMatch = isUnnamed && string.IsNullOrEmpty(pass);
+                // var isUnnamed = k_NoPassNames.Contains(Pass);
+                // passMatch = isUnnamed && string.IsNullOrEmpty(pass);
+                passMatch = k_NoPassNames.Contains(Pass) &&
+                            (k_NoPassNames.Contains(pass) || string.IsNullOrEmpty(pass));
             }
 
             return passMatch;
@@ -161,6 +182,7 @@ namespace ShaderVariantStripping
                             var logFile = DragAndDrop.paths[0];
                             var shaders = ((CompiledShaders)target).Shaders;    // Shaders: List<CompiledShaderData>
                             ParsePlayerLog(logFile, shaders);
+                            ((CompiledShaders)target).UpdateCounts();
                             EditorUtility.SetDirty(target);
                         }
                     }
@@ -203,10 +225,10 @@ namespace ShaderVariantStripping
                             case "Shader":
                                 parts[0] = fdv.GetItemMergedSamplesMetadata(id, i, m);
                                 // debug
-                                if (parts[0].Contains("BlitCopy"))
-                                {
-                                    Debug.Log($"Found BlitCopy shader: {fdv.frameIndex}");
-                                }
+                                // if (parts[0].Contains("BlitCopy"))
+                                // {
+                                //     Debug.Log($"Found BlitCopy shader: {fdv.frameIndex}");
+                                // }
                                 break;
                             case "Pass":
                                 parts[1] = fdv.GetItemMergedSamplesMetadata(id, i, m);
@@ -260,6 +282,7 @@ namespace ShaderVariantStripping
                 // "Uploaded shader variant to the GPU driver: Hidden/Internal-GUITexture (instance 0x3E), pass: <Unnamed Pass 0>, stage: vertex, keywords <no keywords>, time: 1.5 ms"
                 // Android 
                 // "Uploaded shader variant to the GPU driver: Hidden/Internal-GUITexture (instance 0x3E), pass: <Unnamed Pass 0>, keywords <no keywords>, time: 7.6 ms"
+                // "Uploaded shader variant to the GPU driver: Hidden/Universal Render Pipeline/Terrain/Lit (Base Pass) (instance 0x184), pass: ForwardLit, stage: all, keywords INSTANCING_ON LIGHTMAP_ON _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS, time: 2.7 ms"
                 
                 var parts = line.Split(new[] { ", pass: ", ", keywords " }, StringSplitOptions.None);
                 if (parts.Length != 3)
@@ -301,7 +324,6 @@ namespace ShaderVariantStripping
                     stage: stage,
                     keywordsString: keywords); 
             }
-
             return true;
         }
 
@@ -310,6 +332,7 @@ namespace ShaderVariantStripping
             var keywords = SplitKeywords(keywordsString, " ").OrderBy(k => k).ToArray();
 
             // fix-up stage to be consistent with built variants stage
+            // AOS: "all" -> "vertex"
             if (k_StageNameMap.ContainsKey(stage))
                 stage = k_StageNameMap[stage];
 
@@ -330,6 +353,10 @@ namespace ShaderVariantStripping
                     Stage = stage,
                     Keywords = keywords
                 });
+            }
+            else
+            {
+                Debug.LogWarning($"[InsertCompiledShaderData]Duplicated CompiledVariantData: {shaderName}, {pass}, {stage}, {string.Join(" ", keywords)}");
             }
         }
 

@@ -33,6 +33,7 @@ public static class Utility
 
     public static int GetTrueQualityLevel(int level)
     {
+        // Debug.Log(QualitySettings.names[level]);
         return QualityLevels.IndexOf(QualitySettings.names[level]);
     }
 
